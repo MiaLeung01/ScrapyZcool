@@ -14,9 +14,18 @@ class Downloader():
     def __init__(self):
         self.page_url = {}
         self.user_urls = []
-        self.root_path = r'D:\Company\explore\res'
 
-    def getPageUrl(self, url, rpath):
+    def startTask(self, page):
+        url = 'https://www.zcool.com.cn/?p=' + str(page)
+        self.getPageUrl(url)
+        for val in self.page_url.values():
+            if not os.path.exists(val['path']):
+                os.mkdir(val['path'])
+            imgs = self.getImgsUrl(val['objid'])
+            for i in range(len(imgs)):
+                self.saveImg(imgs[i], val['path'], i)
+
+    def getPageUrl(self, url, rpath= r'D:\Company\explore\res'):
         req = requests.get(url)
         bf = BeautifulSoup(req.text)
         try:
@@ -85,12 +94,4 @@ if __name__ == "__main__":
     #从第1页到第100页
     for page in range(1,101):
         print('开始爬取第%d页'%page)
-        url = 'https://www.zcool.com.cn/?p=' + str(page)
-        dl.getPageUrl(url, dl.root_path)
-        length = len(dl.page_url)
-        for val in dl.page_url.values():
-            if not os.path.exists(val['path']):
-                os.mkdir(val['path'])
-            imgs = dl.getImgsUrl(val['objid'])
-            for i in range(len(imgs)):
-                dl.saveImg(imgs[i], val['path'], i)
+        dl.startTask(page)
