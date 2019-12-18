@@ -11,9 +11,10 @@ from contextlib import closing
 """
 
 class Downloader():
-    def __init__(self):
+    def __init__(self, proxy={'http':'223.198.21.225'}):
         self.page_url = {}
         self.user_urls = []
+        self.proxies = proxy  
 
     def startTask(self, page):
         url = 'https://www.zcool.com.cn/?p=' + str(page)
@@ -26,7 +27,7 @@ class Downloader():
                 self.saveImg(imgs[i], val['path'], i)
 
     def getPageUrl(self, url, rpath= r'D:\Company\explore\res'):
-        req = requests.get(url)
+        req = requests.get(url, proxies=self.proxies)
         bf = BeautifulSoup(req.text)
         try:
             div_bf = BeautifulSoup(str(bf.find_all('div', class_='work-list-box')[0]))
@@ -56,7 +57,7 @@ class Downloader():
 
     # 从页面 html  在 id='dataInput' 的 data-objid 属性中 拿到 objectId:
     def getPageObjectIdAndTitle(self, url):
-        req = requests.get(url=url)
+        req = requests.get(url, proxies=self.proxies)
         bf = BeautifulSoup(req.text)
         if(bf.find_all(id='dataInput')):
             objid = bf.find_all(id='dataInput')[0]['data-objid']
@@ -67,7 +68,7 @@ class Downloader():
     # 根据 objectId 获取当前页面的图片地址
     def getImgsUrl(self, objectId):
         url = 'https://www.zcool.com.cn/work/content/show?objectId='+str(objectId)
-        req = requests.get(url=url)
+        req = requests.get(url, proxies=self.proxies)
         img_links = []
         for item in req.json()['data']['allImageList']:
             img_links.append(item['url'])
@@ -80,7 +81,7 @@ class Downloader():
         if os.path.exists(p):
             print('文件存在，跳过')
             return
-        with closing(requests.get(url=url, stream=True, verify = False, headers = headers)) as r:
+        with closing(requests.get(url, stream=True, verify = False, headers = headers)) as r:
             with open(p, 'ab+') as f:
                 for chunk in r.iter_content(chunk_size = 1024):
                     if chunk:
