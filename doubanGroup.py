@@ -1,3 +1,4 @@
+# python 爬虫小白教程 1 - 爬取豆瓣的话题
 from urllib import request
 from bs4 import BeautifulSoup
 import time
